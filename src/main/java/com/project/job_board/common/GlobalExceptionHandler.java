@@ -1,6 +1,10 @@
 package com.project.job_board.common;
 
+import com.project.job_board.auth.AuthenticationFailedException;
+import com.project.job_board.auth.EmailAlreadyRegisteredException;
 import com.project.job_board.jobapplication.JobApplicationNotFoundException;
+import com.project.job_board.user.InvalidCurrentPasswordException;
+import com.project.job_board.user.UserNotFoundException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,6 +33,37 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail handleNotFound(JobApplicationNotFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problem.setTitle("Job application not found");
+        return problem;
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    ProblemDetail handleAuthenticationFailed(AuthenticationFailedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problem.setTitle("Sign-in failed");
+        return problem;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    ProblemDetail handleUserNotFound(UserNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
+                "Your account no longer exists. Sign in again.");
+        problem.setTitle("Account not found");
+        return problem;
+    }
+
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    ProblemDetail handleEmailTaken(EmailAlreadyRegisteredException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Email already registered");
+        problem.setProperty("errors", Map.of("email", ex.getMessage()));
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    ProblemDetail handleWrongCurrentPassword(InvalidCurrentPasswordException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Validation failed");
+        problem.setProperty("errors", Map.of("currentPassword", ex.getMessage()));
         return problem;
     }
 

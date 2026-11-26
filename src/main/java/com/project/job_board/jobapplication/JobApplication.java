@@ -24,6 +24,9 @@ public class JobApplication {
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     private UUID id;
 
+    @Column(name = "owner_id", nullable = false, updatable = false)
+    private UUID ownerId;
+
     @Column(nullable = false, length = 200)
     private String title;
 
@@ -75,6 +78,9 @@ public class JobApplication {
     private long version;
 
     public UUID getId() { return id; }
+
+    public UUID getOwnerId() { return ownerId; }
+    public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

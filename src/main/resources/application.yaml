@@ -14,6 +14,9 @@ spring:
   docker:
     compose:
       lifecycle-management: start-only
+      # bootRun only needs the database; the backend/frontend containers in compose.yaml are for `docker compose up`
+      start:
+        arguments: postgres
   mvc:
     problemdetails:
       enabled: true
@@ -23,6 +26,32 @@ spring:
         max-page-size: 100
         serialization-mode: via-dto
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  security:
+    jwt:
+      # HMAC-SHA256 signing key, base64-encoded, at least 32 bytes. Leave empty in development to use a random
+      # key per run (access tokens are re-issued via refresh after a restart). Always set JWT_SECRET in shared environments.
+      secret: ${JWT_SECRET:}
+      issuer: job-board
+      access-token-ttl: 15m
+      refresh-token-ttl: 14d
+    refresh-cookie:
+      name: refresh_token
+      path: /api/v1/auth
+      # Browsers accept Secure cookies on http://localhost in Chrome and Firefox; set to false only if your
+      # dev browser rejects them (e.g. Safari). Must stay true anywhere served over HTTPS.
+      secure: ${REFRESH_COOKIE_SECURE:true}

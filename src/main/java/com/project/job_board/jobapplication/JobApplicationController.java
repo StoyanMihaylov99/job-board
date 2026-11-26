@@ -1,5 +1,6 @@
 package com.project.job_board.jobapplication;
 
+import com.project.job_board.auth.CurrentUserId;
 import com.project.job_board.jobapplication.dto.JobApplicationFilter;
 import com.project.job_board.jobapplication.dto.JobApplicationRequest;
 import com.project.job_board.jobapplication.dto.JobApplicationResponse;
@@ -38,25 +39,27 @@ public class JobApplicationController {
 
     @GetMapping
     public PagedModel<JobApplicationResponse> list(
+            @CurrentUserId UUID userId,
             @ParameterObject JobApplicationFilter filter,
             @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return new PagedModel<>(service.findAll(filter, pageable));
+        return new PagedModel<>(service.findAll(userId, filter, pageable));
     }
 
     @GetMapping("/stats")
-    public StatusStatsResponse stats() {
-        return service.stats();
+    public StatusStatsResponse stats(@CurrentUserId UUID userId) {
+        return service.stats(userId);
     }
 
     @GetMapping("/{id}")
-    public JobApplicationResponse get(@PathVariable UUID id) {
-        return service.findById(id);
+    public JobApplicationResponse get(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        return service.findById(userId, id);
     }
 
     @PostMapping
-    public ResponseEntity<JobApplicationResponse> create(@Valid @RequestBody JobApplicationRequest request) {
-        JobApplicationResponse created = service.create(request);
+    public ResponseEntity<JobApplicationResponse> create(@CurrentUserId UUID userId,
+                                                         @Valid @RequestBody JobApplicationRequest request) {
+        JobApplicationResponse created = service.create(userId, request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.id())
@@ -65,18 +68,20 @@ public class JobApplicationController {
     }
 
     @PutMapping("/{id}")
-    public JobApplicationResponse update(@PathVariable UUID id, @Valid @RequestBody JobApplicationRequest request) {
-        return service.update(id, request);
+    public JobApplicationResponse update(@CurrentUserId UUID userId, @PathVariable UUID id,
+                                         @Valid @RequestBody JobApplicationRequest request) {
+        return service.update(userId, id, request);
     }
 
     @PatchMapping("/{id}/status")
-    public JobApplicationResponse updateStatus(@PathVariable UUID id, @Valid @RequestBody StatusUpdateRequest request) {
-        return service.updateStatus(id, request.status());
+    public JobApplicationResponse updateStatus(@CurrentUserId UUID userId, @PathVariable UUID id,
+                                               @Valid @RequestBody StatusUpdateRequest request) {
+        return service.updateStatus(userId, id, request.status());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(@CurrentUserId UUID userId, @PathVariable UUID id) {
+        service.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 }

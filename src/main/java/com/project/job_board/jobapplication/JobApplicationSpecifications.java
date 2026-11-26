@@ -9,14 +9,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 final class JobApplicationSpecifications {
 
     private JobApplicationSpecifications() {
     }
 
-    static Specification<JobApplication> from(JobApplicationFilter filter) {
+    static Specification<JobApplication> from(UUID ownerId, JobApplicationFilter filter) {
         List<Specification<JobApplication>> specs = new ArrayList<>();
+        specs.add(ownedBy(ownerId));
         if (filter.status() != null && !filter.status().isEmpty()) {
             specs.add(hasStatusIn(filter.status()));
         }
@@ -33,6 +35,10 @@ final class JobApplicationSpecifications {
             specs.add(appliedOnOrBefore(filter.appliedTo()));
         }
         return Specification.allOf(specs);
+    }
+
+    private static Specification<JobApplication> ownedBy(UUID ownerId) {
+        return (root, query, cb) -> cb.equal(root.get("ownerId"), ownerId);
     }
 
     private static Specification<JobApplication> hasStatusIn(Collection<ApplicationStatus> statuses) {

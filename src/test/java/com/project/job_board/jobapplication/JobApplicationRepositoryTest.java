@@ -3,6 +3,8 @@ package com.project.job_board.jobapplication;
 import com.project.job_board.TestcontainersConfiguration;
 import com.project.job_board.jobapplication.dto.JobApplicationFilter;
 import com.project.job_board.jobapplication.dto.StatusCount;
+import com.project.job_board.user.AppUser;
+import com.project.job_board.user.AppUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,8 +29,20 @@ class JobApplicationRepositoryTest {
     @Autowired
     private JobApplicationRepository repository;
 
+    @Autowired
+    private AppUserRepository users;
+
+    private UUID owner;
+    private UUID otherUser;
+
     @BeforeEach
     void seed() {
+        owner = users.save(new AppUser("owner@example.com", "{noop}x", "Owner")).getId();
+        otherUser = users.save(new AppUser("other@example.com", "{noop}x", "Other")).getId();
+        JobApplication foreign = application("Backend Developer", "Acme Corp", "Senior", ApplicationStatus.OFFER, null);
+        foreign.setOwnerId(otherUser);
+        repository.save(foreign);
+
         repository.saveAll(List.of(
                 application("Backend Developer", "Acme Corp", "Senior", ApplicationStatus.APPLIED, LocalDate.of(2026, 10, 1)),
                 application("Frontend Developer", "Globex", "Mid", ApplicationStatus.INTERVIEWING, LocalDate.of(2026, 11, 1)),
@@ -78,8 +93,23 @@ class JobApplicationRepositoryTest {
     }
 
     @Test
+    void neverReturnsOtherUsersApplications() {
+        assertThat(repository.findAll(JobApplicationSpecifications.from(otherUser,
+                new JobApplicationFilter(null, null, null, null, null))))
+                .singleElement().extracting(JobApplication::getStatus).isEqualTo(ApplicationStatus.OFFER);
+        assertThat(find(new JobApplicationFilter(List.of(ApplicationStatus.OFFER), null, null, null, null))).isEmpty();
+    }
+
+    @Test
+    void findsByIdOnlyForTheOwner() {
+        JobApplication mine = find(new JobApplicationFilter(null, "initech", null, null, null)).getFirst();
+        assertThat(repository.findByIdAndOwnerId(mine.getId(), owner)).isPresent();
+        assertThat(repository.findByIdAndOwnerId(mine.getId(), otherUser)).isEmpty();
+    }
+
+    @Test
     void countsByStatus() {
-        assertThat(repository.countByStatus()).containsExactlyInAnyOrder(
+        assertThat(repository.countByStatus(owner)).containsExactlyInAnyOrder(
                 new StatusCount(ApplicationStatus.APPLIED, 2),
                 new StatusCount(ApplicationStatus.INTERVIEWING, 1),
                 new StatusCount(ApplicationStatus.WISHLIST, 1));
@@ -106,12 +136,13 @@ class JobApplicationRepositoryTest {
     }
 
     private List<JobApplication> find(JobApplicationFilter filter) {
-        return repository.findAll(JobApplicationSpecifications.from(filter));
+        return repository.findAll(JobApplicationSpecifications.from(owner, filter));
     }
 
-    private static JobApplication application(String title, String company, String position,
-                                              ApplicationStatus status, LocalDate appliedDate) {
+    private JobApplication application(String title, String company, String position,
+                                       ApplicationStatus status, LocalDate appliedDate) {
         JobApplication entity = new JobApplication();
+        entity.setOwnerId(owner);
         entity.setTitle(title);
         entity.setCompany(company);
         entity.setPosition(position);

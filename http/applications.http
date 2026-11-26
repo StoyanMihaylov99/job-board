@@ -1,8 +1,35 @@
 ### Variables
 @base = http://localhost:8080/api/v1/applications
+@auth = http://localhost:8080/api/v1/auth
+
+### Register (first time) – stores the access token for the requests below
+POST {{auth}}/register
+Content-Type: application/json
+
+{ "email": "me@example.com", "password": "a long password", "displayName": "Me" }
+
+> {% client.global.set("token", response.body.accessToken); %}
+
+### Sign in – stores the access token for the requests below
+POST {{auth}}/login
+Content-Type: application/json
+
+{ "email": "me@example.com", "password": "a long password" }
+
+> {% client.global.set("token", response.body.accessToken); %}
+
+### Refresh (uses the refresh_token cookie set by sign-in)
+POST {{auth}}/refresh
+
+> {% client.global.set("token", response.body.accessToken); %}
+
+### Who am I
+GET http://localhost:8080/api/v1/me
+Authorization: Bearer {{token}}
 
 ### Create
 POST {{base}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -22,12 +49,15 @@ Content-Type: application/json
 
 ### List (filters + paging + sorting are all optional)
 GET {{base}}?status=APPLIED&status=INTERVIEWING&q=backend&page=0&size=20&sort=appliedDate,desc
+Authorization: Bearer {{token}}
 
 ### Get one
 GET {{base}}/{{id}}
+Authorization: Bearer {{token}}
 
 ### Full update (status may be omitted to keep the current one)
 PUT {{base}}/{{id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -38,12 +68,15 @@ Content-Type: application/json
 
 ### Change status only
 PATCH {{base}}/{{id}}/status
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 { "status": "INTERVIEWING" }
 
 ### Dashboard stats
 GET {{base}}/stats
+Authorization: Bearer {{token}}
 
 ### Delete
 DELETE {{base}}/{{id}}
+Authorization: Bearer {{token}}
