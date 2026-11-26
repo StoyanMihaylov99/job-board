@@ -1,11 +1,12 @@
 # Job Board
 
-Personal job-application tracker. Spring Boot 4.2 (Java 21) REST API backed by PostgreSQL 18 in Docker.
-An Angular frontend and per-user authentication will be added in later phases.
+Personal job-application tracker. Spring Boot 4.2 (Java 21) REST API backed by PostgreSQL 18 in Docker,
+with an Angular 22 frontend in `frontend/`. Per-user authentication will be added in a later phase.
 
 ## Prerequisites
 - Java 21
 - Docker (running)
+- Node.js 22+ (for the frontend)
 
 ## Run
 ```bash
@@ -21,6 +22,20 @@ Datasource settings can be overridden with `DB_URL`, `DB_USERNAME`, `DB_PASSWORD
 - API base: `http://localhost:8080/api/v1/applications`
 - Swagger UI: `http://localhost:8080/swagger-ui.html` · OpenAPI JSON: `/v3/api-docs`
 - Sample requests: `http/applications.http` (IntelliJ HTTP client)
+
+## Frontend
+```bash
+cd frontend
+npm install
+npm start          # http://localhost:4200, proxies /api to the backend on :8080
+npm test           # unit tests (Vitest)
+npm run build      # production build in frontend/dist
+```
+Start the backend first (`./gradlew bootRun`). The dev server proxies `/api` calls via `proxy.conf.json`, so no CORS
+setup is needed in development.
+
+Stack: standalone components, signals, `httpResource` for data loading, Signal Forms for the add/edit form,
+native `<dialog>` for modals. Design tokens (colours, type scale, spacing) live in `frontend/src/styles.css`.
 
 ## Test
 ```bash

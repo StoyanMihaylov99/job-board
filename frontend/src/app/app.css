@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  max-inline-size: 76rem;
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-s);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.wordmark-mark {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  fill: var(--amber);
+}
+
+.main {
+  max-inline-size: 76rem;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.toast {
+  position: fixed;
+  inset-block-end: var(--space-5);
+  inset-inline-start: 50%;
+  translate: -50% 1rem;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-m);
+  background: var(--ink-800);
+  color: var(--text);
+  font-weight: 550;
+  box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease;
+
+  &:empty {
+    padding: 0;
+    border: 0;
+  }
+}
+
+.toast-visible {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+@media (width < 40rem) {
+  .topbar,
+  .main {
+    padding-inline: var(--space-4);
+  }
+}

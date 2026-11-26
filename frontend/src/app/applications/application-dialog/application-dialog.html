@@ -1,0 +1,265 @@
+<dialog
+  #dialog
+  closedby="closerequest"
+  aria-labelledby="application-dialog-title"
+  (cancel)="onCancel($event)"
+>
+  <form class="sheet" novalidate (submit)="save($event)">
+    <header class="sheet-header">
+      <h1 id="application-dialog-title">{{ heading() }}</h1>
+      <button
+        type="button"
+        class="btn btn-quiet icon-btn"
+        aria-label="Close"
+        (click)="requestClose()"
+      >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="m4 4 8 8M12 4l-8 8" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="sheet-body">
+      <fieldset>
+        <legend>The role</legend>
+        <div class="grid">
+          <div class="field span-2">
+            <label for="app-title">Job title</label>
+            <input
+              id="app-title"
+              class="input"
+              autocomplete="off"
+              placeholder="Backend Developer"
+              autofocus
+              [formField]="form.title"
+              [attr.aria-invalid]="showError(form.title)"
+              [attr.aria-describedby]="showError(form.title) ? 'app-title-error' : null"
+            />
+            @if (showError(form.title)) {
+              <p class="field-error" id="app-title-error">{{ errorText(form.title) }}</p>
+            }
+          </div>
+
+          <div class="field">
+            <label for="app-company">Company</label>
+            <input
+              id="app-company"
+              class="input"
+              autocomplete="organization"
+              [formField]="form.company"
+              [attr.aria-invalid]="showError(form.company)"
+              [attr.aria-describedby]="showError(form.company) ? 'app-company-error' : null"
+            />
+            @if (showError(form.company)) {
+              <p class="field-error" id="app-company-error">{{ errorText(form.company) }}</p>
+            }
+          </div>
+
+          <div class="field">
+            <label for="app-position">Level <span class="optional">(optional)</span></label>
+            <input
+              id="app-position"
+              class="input"
+              autocomplete="off"
+              placeholder="Mid, Senior, Lead…"
+              [formField]="form.position"
+              [attr.aria-invalid]="showError(form.position)"
+              [attr.aria-describedby]="showError(form.position) ? 'app-position-error' : null"
+            />
+            @if (showError(form.position)) {
+              <p class="field-error" id="app-position-error">{{ errorText(form.position) }}</p>
+            }
+          </div>
+
+          <div class="field span-2">
+            <label for="app-url">Link to the job ad <span class="optional">(optional)</span></label>
+            <input
+              id="app-url"
+              class="input"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://"
+              [formField]="form.jobUrl"
+              [attr.aria-invalid]="showError(form.jobUrl)"
+              [attr.aria-describedby]="showError(form.jobUrl) ? 'app-url-error' : null"
+            />
+            @if (showError(form.jobUrl)) {
+              <p class="field-error" id="app-url-error">{{ errorText(form.jobUrl) }}</p>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Progress</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="app-status">Status</label>
+            <select id="app-status" class="select" [formField]="form.status">
+              @for (status of statuses; track status) {
+                <option [value]="status">{{ statusLabels[status] }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="app-applied">Applied on</label>
+            <input
+              id="app-applied"
+              class="input"
+              type="date"
+              [formField]="form.appliedDate"
+              [attr.aria-invalid]="showError(form.appliedDate)"
+              [attr.aria-describedby]="
+                showError(form.appliedDate) ? 'app-applied-error' : 'app-applied-hint'
+              "
+            />
+            @if (showError(form.appliedDate)) {
+              <p class="field-error" id="app-applied-error">{{ errorText(form.appliedDate) }}</p>
+            } @else {
+              <p class="field-hint" id="app-applied-hint">
+                Left empty, it’s set to today unless the status is Wishlist.
+              </p>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Location and pay</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="app-location">Location <span class="optional">(optional)</span></label>
+            <input
+              id="app-location"
+              class="input"
+              autocomplete="off"
+              placeholder="Sofia"
+              [formField]="form.location"
+              [attr.aria-invalid]="showError(form.location)"
+              [attr.aria-describedby]="showError(form.location) ? 'app-location-error' : null"
+            />
+            @if (showError(form.location)) {
+              <p class="field-error" id="app-location-error">{{ errorText(form.location) }}</p>
+            }
+          </div>
+
+          <div class="field">
+            <label for="app-mode">Work mode <span class="optional">(optional)</span></label>
+            <select id="app-mode" class="select" [formField]="form.workMode">
+              <option value="">Not specified</option>
+              @for (mode of workModes; track mode) {
+                <option [value]="mode">{{ workModeLabels[mode] }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="salary span-2">
+            <div class="field">
+              <label for="app-salary-min">Salary from</label>
+              <input
+                id="app-salary-min"
+                class="input"
+                type="number"
+                inputmode="numeric"
+                step="100"
+                [formField]="form.salaryMin"
+                [attr.aria-invalid]="showError(form.salaryMin)"
+                [attr.aria-describedby]="showError(form.salaryMin) ? 'app-salary-min-error' : null"
+              />
+              @if (showError(form.salaryMin)) {
+                <p class="field-error" id="app-salary-min-error">{{ errorText(form.salaryMin) }}</p>
+              }
+            </div>
+            <div class="field">
+              <label for="app-salary-max">to</label>
+              <input
+                id="app-salary-max"
+                class="input"
+                type="number"
+                inputmode="numeric"
+                step="100"
+                [formField]="form.salaryMax"
+                [attr.aria-invalid]="showError(form.salaryMax)"
+                [attr.aria-describedby]="showError(form.salaryMax) ? 'app-salary-max-error' : null"
+              />
+              @if (showError(form.salaryMax)) {
+                <p class="field-error" id="app-salary-max-error">{{ errorText(form.salaryMax) }}</p>
+              }
+            </div>
+            <div class="field">
+              <label for="app-currency">Currency</label>
+              <input
+                id="app-currency"
+                class="input currency"
+                autocomplete="off"
+                autocapitalize="characters"
+                placeholder="EUR"
+                [formField]="form.salaryCurrency"
+                [attr.aria-invalid]="showError(form.salaryCurrency)"
+                [attr.aria-describedby]="
+                  showError(form.salaryCurrency) ? 'app-currency-error' : null
+                "
+              />
+              @if (showError(form.salaryCurrency)) {
+                <p class="field-error" id="app-currency-error">
+                  {{ errorText(form.salaryCurrency) }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="app-notes">Notes <span class="optional">(optional)</span></label>
+        <textarea
+          id="app-notes"
+          class="textarea"
+          rows="4"
+          placeholder="Who referred you, interview dates, impressions…"
+          [formField]="form.notes"
+          [attr.aria-invalid]="showError(form.notes)"
+          [attr.aria-describedby]="showError(form.notes) ? 'app-notes-error' : null"
+        ></textarea>
+        @if (showError(form.notes)) {
+          <p class="field-error" id="app-notes-error">{{ errorText(form.notes) }}</p>
+        }
+      </div>
+
+      @if (formError()) {
+        <p class="form-error" role="alert">{{ formError() }}</p>
+      }
+    </div>
+
+    <footer class="sheet-footer">
+      <p class="discard-message" id="discard-message" [class.is-visible]="confirmingDiscard()">
+        You have unsaved changes.
+      </p>
+      <div class="actions">
+        <button
+          #discardButton
+          type="button"
+          class="btn btn-danger discard"
+          aria-describedby="discard-message"
+          [class.is-visible]="confirmingDiscard()"
+          (click)="close()"
+        >
+          Discard changes
+        </button>
+        <button type="button" class="btn" (click)="requestClose()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form().submitting()">
+          {{ form().submitting() ? 'Saving…' : editing() ? 'Save changes' : 'Add application' }}
+        </button>
+      </div>
+    </footer>
+  </form>
+</dialog>

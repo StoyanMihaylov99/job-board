@@ -1,0 +1,301 @@
+<section class="overview" aria-labelledby="overview-title">
+  <div class="overview-head">
+    <h1 id="overview-title" class="headline">
+      @if (summary(); as s) {
+        @if (s.total === 0) {
+          Start tracking your job search.
+        } @else {
+          {{ s.total }} {{ s.total === 1 ? 'application' : 'applications' }}, {{ s.active }} still
+          in play.
+        }
+      } @else {
+        Your job search
+      }
+    </h1>
+    <button type="button" class="btn btn-primary" (click)="add()">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M8 3v10M3 8h10" />
+      </svg>
+      Add application
+    </button>
+  </div>
+
+  @if (stats.hasValue()) {
+    <app-pipeline
+      [stats]="stats.value()"
+      [selected]="status()"
+      (selectStatus)="setStatusFilter($event)"
+    />
+  } @else if (stats.error()) {
+    <p class="muted">Pipeline unavailable until the API responds.</p>
+  } @else {
+    <div class="pipeline-skeleton" aria-hidden="true"></div>
+  }
+</section>
+
+<section class="applications" aria-labelledby="applications-title">
+  <div class="toolbar">
+    <h2 id="applications-title" class="visually-hidden">Applications</h2>
+
+    <div class="search">
+      <label for="search" class="visually-hidden">Search applications</label>
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="7" cy="7" r="4.5" />
+        <path d="m10.5 10.5 3 3" />
+      </svg>
+      <input
+        id="search"
+        class="input"
+        type="search"
+        placeholder="Search by title, company or level"
+        autocomplete="off"
+        [value]="search()"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-inline">
+      <label for="status-filter">Status</label>
+      <select
+        id="status-filter"
+        class="select"
+        (change)="setStatusFilter($any($event.target).value || null)"
+      >
+        <option value="" [selected]="!status()">All</option>
+        @for (s of statuses; track s) {
+          <option [value]="s" [selected]="s === status()">{{ statusLabels[s] }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field-inline">
+      <label for="sort">Sort</label>
+      <select id="sort" class="select" (change)="onSort($any($event.target).value)">
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value" [selected]="option.value === sort()">
+            {{ option.label }}
+          </option>
+        }
+      </select>
+    </div>
+
+    @if (hasFilters()) {
+      <button type="button" class="btn btn-quiet" (click)="clearFilters()">Clear filters</button>
+    }
+  </div>
+
+  @if (list.error() && !list.hasValue()) {
+    <div class="state">
+      <h3>Couldn’t load your applications</h3>
+      <p class="muted">Check that the API is running on port 8080, then try again.</p>
+      <button type="button" class="btn" (click)="refresh()">Try again</button>
+    </div>
+  } @else if (list.hasValue() && rows().length === 0) {
+    <div class="state">
+      @if (hasFilters()) {
+        <h3>No applications match these filters</h3>
+        <p class="muted">Try a different search or status.</p>
+        <button type="button" class="btn" (click)="clearFilters()">Clear filters</button>
+      } @else {
+        <h3>Nothing tracked yet</h3>
+        <p class="muted">Add the first job you applied to, or one you’re eyeing.</p>
+        <button type="button" class="btn btn-primary" (click)="add()">Add application</button>
+      }
+    </div>
+  } @else {
+    <div
+      class="table-wrap"
+      tabindex="0"
+      role="region"
+      aria-labelledby="applications-title"
+      [attr.aria-busy]="list.isLoading()"
+      [class.is-loading]="list.isLoading()"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Role</th>
+            <th scope="col">Status</th>
+            <th scope="col">Applied</th>
+            <th scope="col">Location</th>
+            <th scope="col">Salary</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of rows(); track app.id) {
+            <tr>
+              <th scope="row" class="role">
+                <span class="role-title">{{ app.title }}</span>
+                <span class="role-meta">
+                  {{ app.company }}
+                  @if (app.position) {
+                    <span class="role-level">{{ app.position }}</span>
+                  }
+                </span>
+              </th>
+              <td data-label="Status">
+                <div class="status-select" [attr.data-status]="app.status">
+                  <span class="dot" aria-hidden="true"></span>
+                  <select
+                    class="select"
+                    [attr.aria-label]="'Status of ' + app.title + ' at ' + app.company"
+                    [disabled]="pendingId() === app.id"
+                    (change)="changeStatus(app, $any($event.target).value)"
+                  >
+                    @for (s of statuses; track s) {
+                      <option [value]="s" [selected]="s === app.status">
+                        {{ statusLabels[s] }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </td>
+              <td data-label="Applied" class="nowrap">
+                @if (app.appliedDate) {
+                  <time [attr.datetime]="app.appliedDate">{{
+                    app.appliedDate | date: 'd MMM y'
+                  }}</time>
+                } @else {
+                  <span class="muted">Not yet</span>
+                }
+              </td>
+              <td data-label="Location">
+                {{ formatPlace(app) }}
+                @if (!formatPlace(app)) {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td data-label="Salary" class="nowrap">
+                {{ formatSalary(app) }}
+                @if (!formatSalary(app)) {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td class="row-actions">
+                @if (app.jobUrl) {
+                  <a
+                    class="btn btn-quiet icon-btn"
+                    [href]="app.jobUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    [attr.aria-label]="
+                      'Open job ad for ' + app.title + ' at ' + app.company + ' (new tab)'
+                    "
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M9 3h4v4M13 3 7.5 8.5M11.5 9.5v3a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5h3"
+                      />
+                    </svg>
+                  </a>
+                } @else {
+                  <span class="icon-slot" aria-hidden="true"></span>
+                }
+                <button
+                  type="button"
+                  class="btn btn-quiet icon-btn"
+                  [attr.aria-label]="'Edit ' + app.title + ' at ' + app.company"
+                  (click)="edit(app)"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M10.5 3.5l2 2L6 12H4v-2l6.5-6.5Z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-quiet icon-btn delete"
+                  [attr.aria-label]="'Delete ' + app.title + ' at ' + app.company"
+                  (click)="remove(app)"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8a1 1 0 0 0 1 .9h3.8a1 1 0 0 0 1-.9l.6-8"
+                    />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (pageInfo(); as info) {
+      @if (info.totalPages > 1) {
+        <nav class="pager" aria-label="Pagination">
+          <span class="muted">{{ rangeLabel() }}</span>
+          <div class="pager-buttons">
+            <button
+              type="button"
+              class="btn"
+              [disabled]="info.number === 0"
+              (click)="goToPage(info.number - 1)"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="info.number + 1 >= info.totalPages"
+              (click)="goToPage(info.number + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      }
+    }
+  }
+</section>
+
+<app-application-dialog (saved)="refresh()" />
+
+<app-confirm-dialog
+  #confirmDelete
+  heading="Delete this application?"
+  confirmLabel="Delete"
+  [message]="
+    deleting()
+      ? deleting()!.title + ' at ' + deleting()!.company + ' will be removed for good.'
+      : ''
+  "
+/>

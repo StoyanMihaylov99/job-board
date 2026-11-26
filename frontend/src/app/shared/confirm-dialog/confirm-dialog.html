@@ -1,0 +1,12 @@
+<dialog #dialog closedby="any" [attr.aria-labelledby]="titleId" (close)="onClose()">
+  <form method="dialog" class="body">
+    <h1 [id]="titleId">{{ heading() }}</h1>
+    @if (message()) {
+      <p class="message">{{ message() }}</p>
+    }
+    <div class="actions">
+      <button type="submit" class="btn" value="cancel" autofocus>Cancel</button>
+      <button type="submit" class="btn btn-danger" value="confirm">{{ confirmLabel() }}</button>
+    </div>
+  </form>
+</dialog>
