@@ -1,0 +1,49 @@
+### Variables
+@base = http://localhost:8080/api/v1/applications
+
+### Create
+POST {{base}}
+Content-Type: application/json
+
+{
+  "title": "Backend Developer",
+  "company": "Acme",
+  "position": "Mid",
+  "status": "APPLIED",
+  "appliedDate": "2026-11-20",
+  "location": "Sofia",
+  "workMode": "HYBRID",
+  "salaryMin": 3000,
+  "salaryMax": 4500,
+  "salaryCurrency": "EUR",
+  "jobUrl": "https://acme.example/jobs/1",
+  "notes": "Referral from a former colleague"
+}
+
+### List (filters + paging + sorting are all optional)
+GET {{base}}?status=APPLIED&status=INTERVIEWING&q=backend&page=0&size=20&sort=appliedDate,desc
+
+### Get one
+GET {{base}}/{{id}}
+
+### Full update (status may be omitted to keep the current one)
+PUT {{base}}/{{id}}
+Content-Type: application/json
+
+{
+  "title": "Senior Backend Developer",
+  "company": "Acme",
+  "appliedDate": "2026-11-20"
+}
+
+### Change status only
+PATCH {{base}}/{{id}}/status
+Content-Type: application/json
+
+{ "status": "INTERVIEWING" }
+
+### Dashboard stats
+GET {{base}}/stats
+
+### Delete
+DELETE {{base}}/{{id}}
