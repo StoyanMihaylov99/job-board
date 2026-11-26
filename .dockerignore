@@ -1,0 +1,7 @@
+# Only the Gradle build inputs are needed for the backend image
+*
+!gradlew
+!gradle/
+!settings.gradle
+!build.gradle
+!src/

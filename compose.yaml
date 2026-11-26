@@ -1,3 +1,5 @@
+# Full stack:   docker compose up -d --build      → http://localhost:8088
+# Local dev:    ./gradlew bootRun starts only `postgres` from this file (see application.yaml)
 services:
   postgres:
     image: postgres:18-alpine
@@ -5,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: jobboard
       POSTGRES_USER: jobboard
-      POSTGRES_PASSWORD: jobboard
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-jobboard}
     ports:
       - "5433:5432"
     volumes:
@@ -15,6 +17,38 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: .
+    image: job-board-backend
+    container_name: job-board-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/jobboard
+      DB_USERNAME: jobboard
+      DB_PASSWORD: ${DB_PASSWORD:-jobboard}
+      # Set in .env to keep people signed in across backend restarts (see .env.example)
+      JWT_SECRET: ${JWT_SECRET:-}
+      REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-true}
+      # Behind nginx: build redirect/Location URLs from the X-Forwarded-* headers it sets
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    image: job-board-frontend
+    container_name: job-board-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8088}:8080"
+    restart: unless-stopped
 
 volumes:
   postgres-data:
