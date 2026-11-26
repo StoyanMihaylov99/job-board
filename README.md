@@ -3,6 +3,17 @@
 Personal job-application tracker. Spring Boot 4.2 (Java 21) REST API backed by PostgreSQL 18 in Docker,
 with an Angular 22 frontend in `frontend/`. Each user registers, signs in and sees only their own applications.
 
+## Screenshots
+
+**Dashboard:** every application with its stage, a pipeline bar that doubles as a status filter, search and sorting
+(sample data).
+
+![Dashboard with sample job applications](docs/screenshots/dashboard.png)
+
+**Home page:** sign-in and an overview of what the app does.
+
+![Home page with sign-in form and feature overview](docs/screenshots/home.png)
+
 ## Prerequisites
 - Java 21
 - Docker (running)
