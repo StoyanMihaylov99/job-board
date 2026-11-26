@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
+import { StatusIcon } from '../../shared/status-icon/status-icon';
 import { ApplicationStatus, STATUS_LABELS, STATUSES, StatusStats } from '../application.model';
 
 interface Segment {
@@ -14,6 +15,7 @@ interface Segment {
  */
 @Component({
   selector: 'app-pipeline',
+  imports: [StatusIcon],
   templateUrl: './pipeline.html',
   styleUrl: './pipeline.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

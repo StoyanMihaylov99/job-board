@@ -1,0 +1,121 @@
+<header class="page-head">
+  <h1>Profile</h1>
+  @if (user(); as u) {
+    <p class="muted">
+      Signed in as <strong>{{ u.email }}</strong>. Member since
+      {{ u.createdAt | date: 'd MMMM y' }}.
+    </p>
+  }
+</header>
+
+<section class="section" aria-labelledby="name-title">
+  <div class="section-intro">
+    <h2 id="name-title">Name</h2>
+    <p class="muted">Shown in the top bar.</p>
+  </div>
+
+  <form novalidate (submit)="saveName($event)">
+    @if (nameError()) {
+      <p class="form-error" role="alert">{{ nameError() }}</p>
+    }
+    <div class="field">
+      <label for="display-name">Name</label>
+      <input
+        id="display-name"
+        class="input"
+        autocomplete="name"
+        [formField]="nameForm.displayName"
+        [attr.aria-invalid]="showError(nameForm.displayName)"
+        [attr.aria-describedby]="showError(nameForm.displayName) ? 'display-name-error' : null"
+      />
+      @if (showError(nameForm.displayName)) {
+        <p class="field-error" id="display-name-error">{{ errorText(nameForm.displayName) }}</p>
+      }
+    </div>
+    <div class="actions">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="nameForm().submitting() || !nameForm().dirty()"
+      >
+        {{ nameForm().submitting() ? 'Saving…' : 'Save name' }}
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="section" aria-labelledby="password-title">
+  <div class="section-intro">
+    <h2 id="password-title">Password</h2>
+    <p class="muted">Changing it signs you out everywhere else.</p>
+  </div>
+
+  <form novalidate (submit)="changePassword($event)">
+    <!-- Lets password managers know which account this change belongs to -->
+    <input
+      type="email"
+      name="username"
+      autocomplete="username"
+      [value]="user()?.email ?? ''"
+      hidden
+    />
+
+    @if (passwordError()) {
+      <p class="form-error" role="alert">{{ passwordError() }}</p>
+    }
+
+    <div class="field">
+      <label for="current-password">Current password</label>
+      <div class="password-field">
+        <input
+          #current
+          id="current-password"
+          class="input"
+          type="password"
+          autocomplete="current-password"
+          [formField]="passwordForm.currentPassword"
+          [attr.aria-invalid]="showError(passwordForm.currentPassword)"
+          [attr.aria-describedby]="
+            showError(passwordForm.currentPassword) ? 'current-password-error' : null
+          "
+        />
+        <app-password-toggle [control]="current" />
+      </div>
+      @if (showError(passwordForm.currentPassword)) {
+        <p class="field-error" id="current-password-error">
+          {{ errorText(passwordForm.currentPassword) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="new-password">New password</label>
+      <div class="password-field">
+        <input
+          #next
+          id="new-password"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          [formField]="passwordForm.newPassword"
+          [attr.aria-invalid]="showError(passwordForm.newPassword)"
+          [attr.aria-describedby]="
+            showError(passwordForm.newPassword) ? 'new-password-error' : 'new-password-hint'
+          "
+        />
+        <app-password-toggle [control]="next" />
+      </div>
+      @if (showError(passwordForm.newPassword)) {
+        <p class="field-error" id="new-password-error">{{ errorText(passwordForm.newPassword) }}</p>
+      } @else {
+        <p class="field-hint" id="new-password-hint">At least 8 characters.</p>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" [disabled]="passwordForm().submitting()">
+        {{ passwordForm().submitting() ? 'Changing…' : 'Change password' }}
+      </button>
+    </div>
+  </form>
+</section>

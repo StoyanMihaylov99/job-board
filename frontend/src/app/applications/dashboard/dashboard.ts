@@ -24,13 +24,14 @@ import {
   STATUSES,
 } from '../application.model';
 import { ApplicationsApi } from '../applications.api';
+import { StatusIcon } from '../../shared/status-icon/status-icon';
 import { Pipeline } from '../pipeline/pipeline';
 
 const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, Pipeline, ApplicationDialog, ConfirmDialog],
+  imports: [DatePipe, Pipeline, ApplicationDialog, ConfirmDialog, StatusIcon],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

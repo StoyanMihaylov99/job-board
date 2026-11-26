@@ -25,7 +25,7 @@
         [disabled]="segment.count === 0 && selected() !== segment.status"
         (click)="toggle(segment.status)"
       >
-        <span class="swatch" aria-hidden="true"></span>
+        <app-status-icon [status]="segment.status" />
         <span class="legend-label">{{ segment.label }}</span>
         <span class="legend-count">{{ segment.count }}</span>
       </button>

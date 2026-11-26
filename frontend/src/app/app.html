@@ -1,12 +1,43 @@
 <header class="topbar">
-  <a class="wordmark" href="/">
-    <svg class="wordmark-mark" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="2" y="13" width="5" height="9" rx="1.5" />
-      <rect x="9.5" y="8" width="5" height="14" rx="1.5" />
-      <rect x="17" y="2" width="5" height="20" rx="1.5" />
-    </svg>
-    Job Board
-  </a>
+  <div class="topbar-inner">
+    <a class="wordmark" routerLink="/">
+      <svg class="wordmark-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="13" width="5" height="9" rx="1.5" />
+        <rect x="9.5" y="8" width="5" height="14" rx="1.5" />
+        <rect x="17" y="2" width="5" height="20" rx="1.5" />
+      </svg>
+      Job Board
+    </a>
+
+    @if (auth.user(); as user) {
+      <nav class="account" aria-label="Account">
+        <a
+          class="account-link"
+          routerLink="/profile"
+          routerLinkActive="is-active"
+          ariaCurrentWhenActive="page"
+        >
+          <span class="avatar" aria-hidden="true">{{
+            user.displayName.charAt(0).toUpperCase()
+          }}</span>
+          <span class="account-name">{{ user.displayName }}</span>
+        </a>
+        <span class="divider" aria-hidden="true"></span>
+        <button type="button" class="nav-button" (click)="signOut()">Sign out</button>
+      </nav>
+    } @else {
+      <nav class="account" aria-label="Account">
+        <a
+          class="nav-link"
+          routerLink="/login"
+          routerLinkActive="is-active"
+          ariaCurrentWhenActive="page"
+          >Log in</a
+        >
+        <a class="pill" routerLink="/register">Sign up</a>
+      </nav>
+    }
+  </div>
 </header>
 
 <main class="main">

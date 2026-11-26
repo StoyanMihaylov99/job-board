@@ -1,57 +1,60 @@
-@import '@fontsource-variable/bricolage-grotesque';
-@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/inter/opsz.css';
 
 /* ---------------------------------------------------------------------------
-   Design tokens. Dark-only by design: deep navy surfaces, amber accent.
-   Amber doubles as the "Offer" status colour: the accent is the goal.
+   Design tokens. Dark-only: neutral near-black surfaces separated by hairlines,
+   one typeface at compact sizes, an off-white accent. Colour is reserved for
+   application statuses; everything else stays greyscale.
    --------------------------------------------------------------------------- */
 :root {
   color-scheme: dark;
 
-  /* Surfaces */
-  --ink-950: #0d1522;
-  --ink-900: #131e2f;
-  --ink-850: #172438;
-  --ink-800: #1b2940;
-  --line: #273852;
-  --line-strong: #3a4f6e;
+  /* Surfaces (names kept from the first theme; values are neutral now) */
+  --ink-950: #08090a; /* page */
+  --ink-900: #0f1011; /* panels, dialogs */
+  --ink-850: #131416; /* row hover */
+  --ink-800: #18191b; /* raised controls */
+  --line: #232428;
+  --line-strong: #2e3035;
+  /* Field border while focused: one step lighter grey, no ring (3:1 against --line) */
+  --line-focus: #6b6f76;
 
   /* Text */
-  --text: #e7edf6;
-  --text-muted: #9aabc3;
-  --text-faint: #7084a0;
+  --text: #f7f8f8;
+  --text-muted: #8a8f98;
+  --text-faint: #7c8189;
 
-  /* Accent */
-  --amber: #f4b740;
-  --amber-hover: #ffc95e;
-  --on-amber: #1e1503;
+  /* Accent: off-white */
+  --accent: #e8e8ea;
+  --accent-hover: #ffffff;
+  --on-accent: #08090a;
 
-  --danger: #f2766b;
-  --danger-surface: #3a1f24;
+  --danger: #eb5757;
+  --danger-surface: #2a1517;
 
-  /* Status palette: no purple, each paired with a text label everywhere it's used */
-  --status-wishlist: #8fa3bf;
-  --status-applied: #5aa9f5;
-  --status-interviewing: #3dd6c6;
-  --status-offer: var(--amber);
-  --status-accepted: #5dd68a;
+  /* Status palette: no purple, no orange; always paired with an icon shape and a text label */
+  --status-wishlist: #8a8f98;
+  --status-applied: #4ea7fc;
+  --status-interviewing: #2fbfae;
+  --status-offer: #e2c65b;
+  --status-accepted: #4cb782;
   --status-rejected: var(--danger);
-  --status-withdrawn: #b9a58c;
-  --status-ghosted: #5e6e86;
+  --status-withdrawn: #a8a29e;
+  --status-ghosted: #6b7079;
 
-  /* Type */
-  --font-display: 'Bricolage Grotesque Variable', 'Avenir Next', system-ui, sans-serif;
-  --font-ui: 'Instrument Sans Variable', 'Segoe UI', system-ui, sans-serif;
+  /* Type: Inter with optical sizing, so large headings get the tighter display cut */
+  --font-ui: 'Inter Variable', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --font-display: var(--font-ui);
+  --step--2: 0.75rem; /* 12 */
   --step--1: 0.8125rem; /* 13 */
-  --step-0: 0.9375rem; /* 15 */
-  --step-1: 1.125rem; /* 18 */
-  --step-2: 1.5rem; /* 24 */
-  --step-3: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+  --step-0: 0.875rem; /* 14 */
+  --step-1: 1rem; /* 16 */
+  --step-2: 1.25rem; /* 20 */
+  --step-3: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);
 
   /* Shape & space */
   --radius-s: 6px;
-  --radius-m: 10px;
-  --radius-l: 16px;
+  --radius-m: 8px;
+  --radius-l: 12px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -60,9 +63,9 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
-  --focus-ring: 0 0 0 2px var(--ink-950), 0 0 0 4px var(--amber);
+  --control-height: 2.125rem; /* 34px */
 
-  accent-color: var(--amber);
+  accent-color: var(--accent);
   scrollbar-color: var(--line-strong) var(--ink-950);
 }
 
@@ -108,22 +111,26 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--ink-950);
+  /* A faint light source low on the page keeps the black from feeling flat */
+  background:
+    radial-gradient(90rem 40rem at 20% 115%, rgb(255 255 255 / 0.05), transparent 70%) fixed,
+    var(--ink-950);
   color: var(--text);
   font-family: var(--font-ui);
   font-size: var(--step-0);
+  font-optical-sizing: auto;
   line-height: 1.5;
-  font-feature-settings: 'tnum' 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
 h2,
 h3 {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.15;
+  font-weight: 590;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
   text-wrap: balance;
 }
 
@@ -133,17 +140,23 @@ p {
 }
 
 a {
-  color: var(--amber);
+  color: var(--text);
+  text-decoration-color: var(--text-faint);
   text-underline-offset: 0.2em;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
 }
 
+/* Keyboard focus on buttons and links: a thin grey outline. Mouse clicks don't trigger :focus-visible. */
 :focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
+  outline: 2px solid var(--line-focus);
+  outline-offset: 2px;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--amber) 35%, transparent);
+  background: rgb(255 255 255 / 0.18);
 }
 
 /* ---------------------------------------------------------------------------
@@ -154,67 +167,83 @@ a {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-block-size: 2.5rem;
-  padding-inline: var(--space-4);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-3);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-m);
-  background: transparent;
+  background: var(--ink-800);
   color: var(--text);
   font: inherit;
-  font-weight: 550;
+  font-size: var(--step--1);
+  font-weight: 510;
   white-space: nowrap;
   cursor: pointer;
   transition:
     background-color 120ms ease,
-    border-color 120ms ease;
+    border-color 120ms ease,
+    color 120ms ease;
 
   &:hover:not(:disabled) {
-    background: var(--ink-800);
+    border-color: #3a3c42;
+    background: #1e1f22;
   }
 
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
   svg {
-    inline-size: 1.1em;
-    block-size: 1.1em;
+    inline-size: 1em;
+    block-size: 1em;
     flex: none;
   }
 }
 
 .btn-primary {
-  border-color: var(--amber);
-  background: var(--amber);
-  color: var(--on-amber);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 
   &:hover:not(:disabled) {
-    border-color: var(--amber-hover);
-    background: var(--amber-hover);
+    border-color: var(--accent-hover);
+    background: var(--accent-hover);
+  }
+
+  /* Disabled reads as quiet, not as a washed-out white */
+  &:disabled {
+    border-color: var(--line-strong);
+    background: var(--ink-800);
+    color: var(--text-faint);
+    opacity: 1;
   }
 }
 
 .btn-danger {
-  border-color: color-mix(in oklab, var(--danger) 60%, transparent);
+  border-color: color-mix(in oklab, var(--danger) 45%, transparent);
+  background: transparent;
   color: var(--danger);
 
   &:hover:not(:disabled) {
+    border-color: var(--danger);
     background: var(--danger-surface);
   }
 }
 
 .btn-quiet {
   border-color: transparent;
+  background: transparent;
   color: var(--text-muted);
 
   &:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--ink-800);
     color: var(--text);
   }
 }
 
 .icon-btn {
-  inline-size: 2.5rem;
+  inline-size: var(--control-height);
   padding: 0;
 }
 
@@ -225,13 +254,14 @@ a {
 .select,
 .textarea {
   inline-size: 100%;
-  min-block-size: 2.5rem;
-  padding: var(--space-2) var(--space-3);
+  min-block-size: var(--control-height);
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-m);
   background: var(--ink-900);
   color: var(--text);
   font: inherit;
+  font-size: var(--step-0);
   transition: border-color 120ms ease;
 
   &::placeholder {
@@ -242,8 +272,11 @@ a {
     border-color: var(--line-strong);
   }
 
+  /* Fields only lighten their border when focused (mouse or keyboard): no ring */
+  &:focus,
   &:focus-visible {
-    border-color: var(--amber);
+    outline: none;
+    border-color: var(--line-focus);
   }
 
   &[aria-invalid='true'] {
@@ -252,44 +285,70 @@ a {
 }
 
 .textarea {
-  min-block-size: 6rem;
+  min-block-size: 5.5rem;
+  padding-block: var(--space-2);
   resize: vertical;
 }
 
 .select {
   appearance: none;
-  padding-inline-end: 2.25rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%239aabc3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  padding-inline-end: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4.5 6.5 3.5 3.5 3.5-3.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.7rem center;
-  background-size: 1rem;
+  background-position: right 0.6rem center;
+  background-size: 0.875rem;
 }
 
 /* Date picker icon is dark on dark otherwise in some engines */
 input[type='date']::-webkit-calendar-picker-indicator {
-  filter: invert(0.75);
+  filter: invert(0.6);
 }
 
 .field {
   display: grid;
-  gap: var(--space-1);
+  gap: 0.375rem;
   align-content: start;
 
   label {
-    font-size: var(--step--1);
-    font-weight: 550;
     color: var(--text-muted);
+    font-size: var(--step--1);
+    font-weight: 510;
   }
 }
 
 .field-hint {
-  font-size: var(--step--1);
   color: var(--text-faint);
+  font-size: var(--step--2);
 }
 
 .field-error {
-  font-size: var(--step--1);
   color: var(--danger);
+  font-size: var(--step--2);
+}
+
+.form-error {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in oklab, var(--danger) 40%, transparent);
+  border-radius: var(--radius-m);
+  background: var(--danger-surface);
+  color: var(--text);
+  font-size: var(--step--1);
+}
+
+/* Password input with a "Show" toggle inside it */
+.password-field {
+  position: relative;
+
+  .input {
+    padding-inline-end: 4.25rem;
+  }
+
+  app-password-toggle {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 0.25rem;
+    translate: 0 -50%;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -297,11 +356,13 @@ input[type='date']::-webkit-calendar-picker-indicator {
    --------------------------------------------------------------------------- */
 dialog {
   padding: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-l);
   background: var(--ink-900);
   color: var(--text);
-  box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.6);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.4),
+    0 24px 64px -12px rgb(0 0 0 / 0.8);
 }
 
 /* Both rules keep scrolling inside the modal from moving the page behind it */
@@ -312,8 +373,7 @@ dialog:modal {
 dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
-  background: rgb(5 10 18 / 0.72);
-  backdrop-filter: blur(2px);
+  background: rgb(0 0 0 / 0.65);
 }
 
 /* ---------------------------------------------------------------------------

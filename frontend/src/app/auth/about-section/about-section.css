@@ -1,0 +1,137 @@
+:host {
+  display: block;
+}
+
+.about {
+  display: grid;
+  gap: clamp(3rem, 6vw, 5rem);
+  margin-block-start: clamp(5rem, 11vw, 9rem);
+}
+
+/* One long sentence: the lead in full white, the rest a step back */
+.statement {
+  max-inline-size: 30em;
+  font-size: clamp(1.625rem, 1rem + 2.4vw, 2.75rem);
+  font-weight: 590;
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  text-wrap: pretty;
+}
+
+.statement-rest {
+  color: var(--text-muted);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Columns divided by hairlines, like plates in a figure set */
+.feature {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: var(--space-2);
+  padding-inline: var(--space-6);
+  border-inline-start: 1px solid var(--line);
+
+  &:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  &:last-child {
+    padding-inline-end: 0;
+  }
+
+  h3 {
+    margin-block-start: var(--space-4);
+    font-size: var(--step-0);
+    font-weight: 510;
+    letter-spacing: -0.006em;
+  }
+
+  p {
+    max-inline-size: 36ch;
+    color: var(--text-muted);
+    font-size: var(--step-0);
+  }
+}
+
+.fig {
+  color: var(--text-faint);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+.art {
+  /* Same height in every column so titles and descriptions line up across the row */
+  display: grid;
+  place-items: center;
+  block-size: 17rem;
+  padding-block: var(--space-6);
+
+  svg {
+    inline-size: auto;
+    max-inline-size: min(100%, 14rem);
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  path {
+    stroke-width: 1;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .tp {
+    fill: #121315;
+    stroke: #7a7e86;
+  }
+
+  .fr {
+    fill: #0c0d0e;
+    stroke: #55585e;
+  }
+
+  .fl {
+    fill: #0e0f10;
+    stroke: #55585e;
+  }
+
+  .ln {
+    stroke: #55585e;
+  }
+
+  .hi {
+    stroke: #a4a9b1;
+  }
+
+  .dot {
+    stroke: #55585e;
+    stroke-dasharray: 1 2.5;
+  }
+}
+
+@media (width < 52rem) {
+  .features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature,
+  .feature:first-child,
+  .feature:last-child {
+    padding: var(--space-6) 0;
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .art {
+    block-size: 12rem;
+    padding-block: var(--space-4);
+  }
+}

@@ -1,0 +1,23 @@
+<div class="layout">
+  <div class="panel">
+    <ng-content />
+  </div>
+
+  <aside class="intro">
+    <p class="intro-headline">Every application, from wishlist to offer.</p>
+    <p class="intro-text">
+      Log each role you apply for, move it along as interviews happen, and see at a glance what’s
+      still in play.
+    </p>
+    <div class="sample" aria-hidden="true">
+      <span data-status="WISHLIST" style="flex-grow: 2"></span>
+      <span data-status="APPLIED" style="flex-grow: 5"></span>
+      <span data-status="INTERVIEWING" style="flex-grow: 3"></span>
+      <span data-status="OFFER" style="flex-grow: 1"></span>
+      <span data-status="REJECTED" style="flex-grow: 2"></span>
+      <span data-status="GHOSTED" style="flex-grow: 1"></span>
+    </div>
+  </aside>
+</div>
+
+<app-about-section />

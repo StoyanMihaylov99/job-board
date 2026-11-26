@@ -1,0 +1,81 @@
+<app-auth-layout>
+  <div>
+    <h1>Create your account</h1>
+    <p class="lede">Your applications stay private to you.</p>
+  </div>
+
+  <form novalidate (submit)="createAccount($event)">
+    @if (formError()) {
+      <p class="form-error" role="alert">{{ formError() }}</p>
+    }
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input
+        id="name"
+        class="input"
+        autocomplete="name"
+        enterkeyhint="next"
+        autofocus
+        [formField]="form.displayName"
+        [attr.aria-invalid]="showError(form.displayName)"
+        [attr.aria-describedby]="showError(form.displayName) ? 'name-error' : null"
+      />
+      @if (showError(form.displayName)) {
+        <p class="field-error" id="name-error">{{ errorText(form.displayName) }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        class="input"
+        type="email"
+        autocomplete="username"
+        spellcheck="false"
+        enterkeyhint="next"
+        [formField]="form.email"
+        [attr.aria-invalid]="showError(form.email)"
+        [attr.aria-describedby]="showError(form.email) ? 'email-error' : null"
+      />
+      @if (showError(form.email)) {
+        <p class="field-error" id="email-error">{{ errorText(form.email) }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="new-password">Password</label>
+      <div class="password-field">
+        <input
+          #password
+          id="new-password"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          enterkeyhint="done"
+          [formField]="form.password"
+          [attr.aria-invalid]="showError(form.password)"
+          [attr.aria-describedby]="showError(form.password) ? 'password-error' : 'password-hint'"
+        />
+        <app-password-toggle [control]="password" />
+      </div>
+      @if (showError(form.password)) {
+        <p class="field-error" id="password-error">{{ errorText(form.password) }}</p>
+      } @else {
+        <p class="field-hint" id="password-hint">
+          At least 8 characters. Your browser can suggest a strong one.
+        </p>
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary submit" [disabled]="form().submitting()">
+      {{ form().submitting() ? 'Creating account…' : 'Create account' }}
+    </button>
+  </form>
+
+  <p class="switch">
+    Already have an account?
+    <a routerLink="/login" [queryParams]="{ returnUrl: returnUrl() }">Sign in</a>
+  </p>
+</app-auth-layout>

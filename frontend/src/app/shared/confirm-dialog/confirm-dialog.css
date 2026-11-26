@@ -1,24 +1,26 @@
 dialog {
-  inline-size: min(28rem, calc(100vw - 2rem));
+  inline-size: min(26rem, calc(100vw - 2rem));
 }
 
 .body {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: var(--space-5);
 }
 
 h1 {
   font-size: var(--step-1);
+  font-weight: 590;
 }
 
 .message {
   color: var(--text-muted);
+  font-size: var(--step--1);
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
-  margin-block-start: var(--space-3);
+  margin-block-start: var(--space-4);
 }
